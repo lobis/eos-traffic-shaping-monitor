@@ -47,7 +47,7 @@ func init() {
 func main() {
 	eosGrpcHost := flag.String("grpc-host", "localhost", "EOS MGM gRPC Host")
 	eosGrpcPort := flag.String("grpc-port", "50051", "EOS MGM gRPC Port")
-	prometheusPort := flag.String("port", "9090", "Prometheus HTTP Port")
+	prometheusPort := flag.String("prometheus-port", "9987", "Prometheus HTTP Port")
 	topN := flag.Uint("n", 1000, "Top N entries to request")
 	flag.Parse()
 
