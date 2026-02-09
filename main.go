@@ -45,20 +45,22 @@ func init() {
 }
 
 func main() {
-	mgmHost := flag.String("mgm", "lobisapa-dev-al9:50051", "EOS MGM gRPC Host:Port")
-	promPort := flag.String("port", "9090", "Prometheus HTTP Port")
-	topN := flag.Uint("n", 10, "Top N entries to request")
+	eosGrpcHost := flag.String("grpc-host", "localhost", "EOS MGM gRPC Host")
+	eosGrpcPort := flag.String("grpc-port", "50051", "EOS MGM gRPC Port")
+	prometheusPort := flag.String("port", "9090", "Prometheus HTTP Port")
+	topN := flag.Uint("n", 1000, "Top N entries to request")
 	flag.Parse()
 
 	// 1. Start Prometheus Server (Background)
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
-		log.Printf("Prometheus metrics available at :%s/metrics", *promPort)
-		log.Fatal(http.ListenAndServe(":"+*promPort, nil))
+		log.Printf("Prometheus metrics available at :%s/metrics", *prometheusPort)
+		log.Fatal(http.ListenAndServe(":"+*prometheusPort, nil))
 	}()
 
 	// 2. Connect to EOS MGM
-	conn, err := grpc.Dial(*mgmHost, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	var mgmHost = fmt.Sprintf("%s:%s", *eosGrpcHost, *eosGrpcPort)
+	conn, err := grpc.NewClient(mgmHost, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
