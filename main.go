@@ -160,7 +160,7 @@ func printAndExportUsers(stats []*pb.UserRateEntry) {
 		for _, s := range entry.Stats {
 			winName := s.Window.String()
 
-			exportMetric("uid", uidStr, winName, s)
+			exportMetric("user", uidStr, winName, s)
 
 			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 				uidStr,
@@ -190,7 +190,7 @@ func printAndExportGroups(stats []*pb.GroupRateEntry) {
 		for _, s := range entry.Stats {
 			winName := s.Window.String()
 
-			exportMetric("gid", gidStr, winName, s)
+			exportMetric("group", gidStr, winName, s)
 
 			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 				gidStr,

@@ -6,7 +6,9 @@ git clone https://github.com/lobis/eos-traffic-shaping-monitor
 cd eos-traffic-shaping-monitor
 
 GOBIN=/usr/local/bin go install .
-
+chmod +x /usr/local/bin/eos_traffic_shaping_monitor
+chmod 755 /usr/local/bin/eos_traffic_shaping_monitor
+restorecon -v /usr/local/bin/eos_traffic_shaping_monitor
 /usr/local/bin/eos_traffic_shaping_monitor --help
 ```
 
