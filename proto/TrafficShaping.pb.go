@@ -9,14 +9,11 @@
 // 	protoc        v6.33.4
 // source: proto/TrafficShaping.proto
 
-// TODO: review package name
-
 package proto
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -33,24 +30,35 @@ type RateRequest_TimeWindow int32
 
 const (
 	RateRequest_WINDOW_UNSPECIFIED RateRequest_TimeWindow = 0 // Proto3 best practice (default 0 should be no-op)
-	RateRequest_WINDOW_LIVE_5S     RateRequest_TimeWindow = 1
-	RateRequest_WINDOW_AVG_1M      RateRequest_TimeWindow = 2
-	RateRequest_WINDOW_AVG_5M      RateRequest_TimeWindow = 3
+	// SMA
+	RateRequest_WINDOW_SMA_5S RateRequest_TimeWindow = 1
+	RateRequest_WINDOW_SMA_1M RateRequest_TimeWindow = 2
+	RateRequest_WINDOW_SMA_5M RateRequest_TimeWindow = 3
+	// EMA
+	RateRequest_WINDOW_EMA_5S RateRequest_TimeWindow = 4
+	RateRequest_WINDOW_EMA_1M RateRequest_TimeWindow = 5
+	RateRequest_WINDOW_EMA_5M RateRequest_TimeWindow = 6
 )
 
 // Enum value maps for RateRequest_TimeWindow.
 var (
 	RateRequest_TimeWindow_name = map[int32]string{
 		0: "WINDOW_UNSPECIFIED",
-		1: "WINDOW_LIVE_5S",
-		2: "WINDOW_AVG_1M",
-		3: "WINDOW_AVG_5M",
+		1: "WINDOW_SMA_5S",
+		2: "WINDOW_SMA_1M",
+		3: "WINDOW_SMA_5M",
+		4: "WINDOW_EMA_5S",
+		5: "WINDOW_EMA_1M",
+		6: "WINDOW_EMA_5M",
 	}
 	RateRequest_TimeWindow_value = map[string]int32{
 		"WINDOW_UNSPECIFIED": 0,
-		"WINDOW_LIVE_5S":     1,
-		"WINDOW_AVG_1M":      2,
-		"WINDOW_AVG_5M":      3,
+		"WINDOW_SMA_5S":      1,
+		"WINDOW_SMA_1M":      2,
+		"WINDOW_SMA_5M":      3,
+		"WINDOW_EMA_5S":      4,
+		"WINDOW_EMA_1M":      5,
+		"WINDOW_EMA_5M":      6,
 	}
 )
 
@@ -367,7 +375,7 @@ func (x *MgmIoResponse) GetAck() bool {
 
 type RateStats struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	Window             RateRequest_TimeWindow `protobuf:"varint,1,opt,name=window,proto3,enum=eos.ioshapping.RateRequest_TimeWindow" json:"window,omitempty"`
+	Window             RateRequest_TimeWindow `protobuf:"varint,1,opt,name=window,proto3,enum=eos.traffic_shaping.RateRequest_TimeWindow" json:"window,omitempty"`
 	BytesReadPerSec    float64                `protobuf:"fixed64,2,opt,name=bytes_read_per_sec,json=bytesReadPerSec,proto3" json:"bytes_read_per_sec,omitempty"`
 	BytesWrittenPerSec float64                `protobuf:"fixed64,3,opt,name=bytes_written_per_sec,json=bytesWrittenPerSec,proto3" json:"bytes_written_per_sec,omitempty"`
 	IopsRead           float64                `protobuf:"fixed64,4,opt,name=iops_read,json=iopsRead,proto3" json:"iops_read,omitempty"`
@@ -602,14 +610,14 @@ func (x *GroupRateEntry) GetStats() []*RateStats {
 
 type RateRequest struct {
 	state        protoimpl.MessageState   `protogen:"open.v1"`
-	Windows      []RateRequest_TimeWindow `protobuf:"varint,1,rep,packed,name=windows,proto3,enum=eos.ioshapping.RateRequest_TimeWindow" json:"windows,omitempty"`
-	IncludeTypes []RateRequest_EntityType `protobuf:"varint,2,rep,packed,name=include_types,json=includeTypes,proto3,enum=eos.ioshapping.RateRequest_EntityType" json:"include_types,omitempty"`
+	Windows      []RateRequest_TimeWindow `protobuf:"varint,1,rep,packed,name=windows,proto3,enum=eos.traffic_shaping.RateRequest_TimeWindow" json:"windows,omitempty"`
+	IncludeTypes []RateRequest_EntityType `protobuf:"varint,2,rep,packed,name=include_types,json=includeTypes,proto3,enum=eos.traffic_shaping.RateRequest_EntityType" json:"include_types,omitempty"`
 	// How many top entries to return for each type? (e.g., Top 10 apps)
 	TopN *uint32 `protobuf:"varint,3,opt,name=top_n,json=topN,proto3,oneof" json:"top_n,omitempty"`
 	// --- 4. Sorting Ambiguity Resolver ---
 	// If I ask for 5s and 5m windows, which one determines who is in the "Top 10"?
 	// (e.g., Sort by 5m trend, but show me the 1s spikes too)
-	SortByWindow  *RateRequest_TimeWindow `protobuf:"varint,4,opt,name=sort_by_window,json=sortByWindow,proto3,enum=eos.ioshapping.RateRequest_TimeWindow,oneof" json:"sort_by_window,omitempty"`
+	SortByWindow  *RateRequest_TimeWindow `protobuf:"varint,4,opt,name=sort_by_window,json=sortByWindow,proto3,enum=eos.traffic_shaping.RateRequest_TimeWindow,oneof" json:"sort_by_window,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -745,7 +753,7 @@ var File_proto_TrafficShaping_proto protoreflect.FileDescriptor
 
 const file_proto_TrafficShaping_proto_rawDesc = "" +
 	"\n" +
-	"\x1aproto/TrafficShaping.proto\x12\x0eeos.ioshapping\x1a\x1bgoogle/protobuf/empty.proto\"\x99\x02\n" +
+	"\x1aproto/TrafficShaping.proto\x12\x13eos.traffic_shaping\"\x99\x02\n" +
 	"\vIoStatEntry\x12\x19\n" +
 	"\bapp_name\x18\x01 \x01(\tR\aappName\x12\x10\n" +
 	"\x03uid\x18\x02 \x01(\rR\x03uid\x12\x10\n" +
@@ -754,41 +762,44 @@ const file_proto_TrafficShaping_proto_rawDesc = "" +
 	"\x10total_bytes_read\x18\x05 \x01(\x04R\x0etotalBytesRead\x12.\n" +
 	"\x13total_bytes_written\x18\x06 \x01(\x04R\x11totalBytesWritten\x12$\n" +
 	"\x0etotal_read_ops\x18\a \x01(\x04R\ftotalReadOps\x12&\n" +
-	"\x0ftotal_write_ops\x18\b \x01(\x04R\rtotalWriteOps\"\xad\x01\n" +
+	"\x0ftotal_write_ops\x18\b \x01(\x04R\rtotalWriteOps\"\xb2\x01\n" +
 	"\vFstIoReport\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12!\n" +
 	"\ftimestamp_ms\x18\x02 \x01(\x03R\vtimestampMs\x12+\n" +
-	"\x12node_start_time_ms\x18\x03 \x01(\x03R\x0fnodeStartTimeMs\x125\n" +
-	"\aentries\x18\x04 \x03(\v2\x1b.eos.ioshapping.IoStatEntryR\aentries\"!\n" +
+	"\x12node_start_time_ms\x18\x03 \x01(\x03R\x0fnodeStartTimeMs\x12:\n" +
+	"\aentries\x18\x04 \x03(\v2 .eos.traffic_shaping.IoStatEntryR\aentries\"!\n" +
 	"\rMgmIoResponse\x12\x10\n" +
-	"\x03ack\x18\x01 \x01(\bR\x03ack\"\xe7\x01\n" +
-	"\tRateStats\x12>\n" +
-	"\x06window\x18\x01 \x01(\x0e2&.eos.ioshapping.RateRequest.TimeWindowR\x06window\x12+\n" +
+	"\x03ack\x18\x01 \x01(\bR\x03ack\"\xec\x01\n" +
+	"\tRateStats\x12C\n" +
+	"\x06window\x18\x01 \x01(\x0e2+.eos.traffic_shaping.RateRequest.TimeWindowR\x06window\x12+\n" +
 	"\x12bytes_read_per_sec\x18\x02 \x01(\x01R\x0fbytesReadPerSec\x121\n" +
 	"\x15bytes_written_per_sec\x18\x03 \x01(\x01R\x12bytesWrittenPerSec\x12\x1b\n" +
 	"\tiops_read\x18\x04 \x01(\x01R\biopsRead\x12\x1d\n" +
 	"\n" +
-	"iops_write\x18\x05 \x01(\x01R\tiopsWrite\"Z\n" +
+	"iops_write\x18\x05 \x01(\x01R\tiopsWrite\"_\n" +
 	"\fAppRateEntry\x12\x19\n" +
-	"\bapp_name\x18\x01 \x01(\tR\aappName\x12/\n" +
-	"\x05stats\x18\x02 \x03(\v2\x19.eos.ioshapping.RateStatsR\x05stats\"R\n" +
+	"\bapp_name\x18\x01 \x01(\tR\aappName\x124\n" +
+	"\x05stats\x18\x02 \x03(\v2\x1e.eos.traffic_shaping.RateStatsR\x05stats\"W\n" +
 	"\rUserRateEntry\x12\x10\n" +
-	"\x03uid\x18\x01 \x01(\rR\x03uid\x12/\n" +
-	"\x05stats\x18\x02 \x03(\v2\x19.eos.ioshapping.RateStatsR\x05stats\"S\n" +
+	"\x03uid\x18\x01 \x01(\rR\x03uid\x124\n" +
+	"\x05stats\x18\x02 \x03(\v2\x1e.eos.traffic_shaping.RateStatsR\x05stats\"X\n" +
 	"\x0eGroupRateEntry\x12\x10\n" +
-	"\x03gid\x18\x01 \x01(\rR\x03gid\x12/\n" +
-	"\x05stats\x18\x02 \x03(\v2\x19.eos.ioshapping.RateStatsR\x05stats\"\xdc\x03\n" +
-	"\vRateRequest\x12@\n" +
-	"\awindows\x18\x01 \x03(\x0e2&.eos.ioshapping.RateRequest.TimeWindowR\awindows\x12K\n" +
-	"\rinclude_types\x18\x02 \x03(\x0e2&.eos.ioshapping.RateRequest.EntityTypeR\fincludeTypes\x12\x18\n" +
-	"\x05top_n\x18\x03 \x01(\rH\x00R\x04topN\x88\x01\x01\x12Q\n" +
-	"\x0esort_by_window\x18\x04 \x01(\x0e2&.eos.ioshapping.RateRequest.TimeWindowH\x01R\fsortByWindow\x88\x01\x01\"^\n" +
+	"\x03gid\x18\x01 \x01(\rR\x03gid\x124\n" +
+	"\x05stats\x18\x02 \x03(\v2\x1e.eos.traffic_shaping.RateStatsR\x05stats\"\xa4\x04\n" +
+	"\vRateRequest\x12E\n" +
+	"\awindows\x18\x01 \x03(\x0e2+.eos.traffic_shaping.RateRequest.TimeWindowR\awindows\x12P\n" +
+	"\rinclude_types\x18\x02 \x03(\x0e2+.eos.traffic_shaping.RateRequest.EntityTypeR\fincludeTypes\x12\x18\n" +
+	"\x05top_n\x18\x03 \x01(\rH\x00R\x04topN\x88\x01\x01\x12V\n" +
+	"\x0esort_by_window\x18\x04 \x01(\x0e2+.eos.traffic_shaping.RateRequest.TimeWindowH\x01R\fsortByWindow\x88\x01\x01\"\x96\x01\n" +
 	"\n" +
 	"TimeWindow\x12\x16\n" +
-	"\x12WINDOW_UNSPECIFIED\x10\x00\x12\x12\n" +
-	"\x0eWINDOW_LIVE_5S\x10\x01\x12\x11\n" +
-	"\rWINDOW_AVG_1M\x10\x02\x12\x11\n" +
-	"\rWINDOW_AVG_5M\x10\x03\"T\n" +
+	"\x12WINDOW_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rWINDOW_SMA_5S\x10\x01\x12\x11\n" +
+	"\rWINDOW_SMA_1M\x10\x02\x12\x11\n" +
+	"\rWINDOW_SMA_5M\x10\x03\x12\x11\n" +
+	"\rWINDOW_EMA_5S\x10\x04\x12\x11\n" +
+	"\rWINDOW_EMA_1M\x10\x05\x12\x11\n" +
+	"\rWINDOW_EMA_5M\x10\x06\"T\n" +
 	"\n" +
 	"EntityType\x12\x16\n" +
 	"\x12ENTITY_UNSPECIFIED\x10\x00\x12\x0e\n" +
@@ -799,20 +810,20 @@ const file_proto_TrafficShaping_proto_rawDesc = "" +
 	"\n" +
 	"ENTITY_GID\x10\x03B\b\n" +
 	"\x06_top_nB\x11\n" +
-	"\x0f_sort_by_window\"\xe9\x01\n" +
+	"\x0f_sort_by_window\"\xf8\x01\n" +
 	"\n" +
 	"RateReport\x12!\n" +
-	"\ftimestamp_ms\x18\x01 \x01(\x03R\vtimestampMs\x129\n" +
-	"\tapp_stats\x18\x02 \x03(\v2\x1c.eos.ioshapping.AppRateEntryR\bappStats\x12<\n" +
+	"\ftimestamp_ms\x18\x01 \x01(\x03R\vtimestampMs\x12>\n" +
+	"\tapp_stats\x18\x02 \x03(\v2!.eos.traffic_shaping.AppRateEntryR\bappStats\x12A\n" +
 	"\n" +
-	"user_stats\x18\x03 \x03(\v2\x1d.eos.ioshapping.UserRateEntryR\tuserStats\x12?\n" +
-	"\vgroup_stats\x18\x04 \x03(\v2\x1e.eos.ioshapping.GroupRateEntryR\n" +
-	"groupStats2h\n" +
-	"\x15TrafficShapingService\x12O\n" +
-	"\rStreamIoStats\x12\x1b.eos.ioshapping.FstIoReport\x1a\x1d.eos.ioshapping.MgmIoResponse(\x010\x012\xa5\x01\n" +
-	"\x14RateReportingService\x12C\n" +
-	"\bGetRates\x12\x1b.eos.ioshapping.RateRequest\x1a\x1a.eos.ioshapping.RateReport\x12H\n" +
-	"\vStreamRates\x12\x1b.eos.ioshapping.RateRequest\x1a\x1a.eos.ioshapping.RateReport0\x01B#Z!eos_traffic_shaping_monitor/protob\x06proto3"
+	"user_stats\x18\x03 \x03(\v2\".eos.traffic_shaping.UserRateEntryR\tuserStats\x12D\n" +
+	"\vgroup_stats\x18\x04 \x03(\v2#.eos.traffic_shaping.GroupRateEntryR\n" +
+	"groupStats2r\n" +
+	"\x15TrafficShapingService\x12Y\n" +
+	"\rStreamIoStats\x12 .eos.traffic_shaping.FstIoReport\x1a\".eos.traffic_shaping.MgmIoResponse(\x010\x012\xb9\x01\n" +
+	"\x14RateReportingService\x12M\n" +
+	"\bGetRates\x12 .eos.traffic_shaping.RateRequest\x1a\x1f.eos.traffic_shaping.RateReport\x12R\n" +
+	"\vStreamRates\x12 .eos.traffic_shaping.RateRequest\x1a\x1f.eos.traffic_shaping.RateReport0\x01B#Z!eos_traffic_shaping_monitor/protob\x06proto3"
 
 var (
 	file_proto_TrafficShaping_proto_rawDescOnce sync.Once
@@ -829,36 +840,36 @@ func file_proto_TrafficShaping_proto_rawDescGZIP() []byte {
 var file_proto_TrafficShaping_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_proto_TrafficShaping_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_proto_TrafficShaping_proto_goTypes = []any{
-	(RateRequest_TimeWindow)(0), // 0: eos.ioshapping.RateRequest.TimeWindow
-	(RateRequest_EntityType)(0), // 1: eos.ioshapping.RateRequest.EntityType
-	(*IoStatEntry)(nil),         // 2: eos.ioshapping.IoStatEntry
-	(*FstIoReport)(nil),         // 3: eos.ioshapping.FstIoReport
-	(*MgmIoResponse)(nil),       // 4: eos.ioshapping.MgmIoResponse
-	(*RateStats)(nil),           // 5: eos.ioshapping.RateStats
-	(*AppRateEntry)(nil),        // 6: eos.ioshapping.AppRateEntry
-	(*UserRateEntry)(nil),       // 7: eos.ioshapping.UserRateEntry
-	(*GroupRateEntry)(nil),      // 8: eos.ioshapping.GroupRateEntry
-	(*RateRequest)(nil),         // 9: eos.ioshapping.RateRequest
-	(*RateReport)(nil),          // 10: eos.ioshapping.RateReport
+	(RateRequest_TimeWindow)(0), // 0: eos.traffic_shaping.RateRequest.TimeWindow
+	(RateRequest_EntityType)(0), // 1: eos.traffic_shaping.RateRequest.EntityType
+	(*IoStatEntry)(nil),         // 2: eos.traffic_shaping.IoStatEntry
+	(*FstIoReport)(nil),         // 3: eos.traffic_shaping.FstIoReport
+	(*MgmIoResponse)(nil),       // 4: eos.traffic_shaping.MgmIoResponse
+	(*RateStats)(nil),           // 5: eos.traffic_shaping.RateStats
+	(*AppRateEntry)(nil),        // 6: eos.traffic_shaping.AppRateEntry
+	(*UserRateEntry)(nil),       // 7: eos.traffic_shaping.UserRateEntry
+	(*GroupRateEntry)(nil),      // 8: eos.traffic_shaping.GroupRateEntry
+	(*RateRequest)(nil),         // 9: eos.traffic_shaping.RateRequest
+	(*RateReport)(nil),          // 10: eos.traffic_shaping.RateReport
 }
 var file_proto_TrafficShaping_proto_depIdxs = []int32{
-	2,  // 0: eos.ioshapping.FstIoReport.entries:type_name -> eos.ioshapping.IoStatEntry
-	0,  // 1: eos.ioshapping.RateStats.window:type_name -> eos.ioshapping.RateRequest.TimeWindow
-	5,  // 2: eos.ioshapping.AppRateEntry.stats:type_name -> eos.ioshapping.RateStats
-	5,  // 3: eos.ioshapping.UserRateEntry.stats:type_name -> eos.ioshapping.RateStats
-	5,  // 4: eos.ioshapping.GroupRateEntry.stats:type_name -> eos.ioshapping.RateStats
-	0,  // 5: eos.ioshapping.RateRequest.windows:type_name -> eos.ioshapping.RateRequest.TimeWindow
-	1,  // 6: eos.ioshapping.RateRequest.include_types:type_name -> eos.ioshapping.RateRequest.EntityType
-	0,  // 7: eos.ioshapping.RateRequest.sort_by_window:type_name -> eos.ioshapping.RateRequest.TimeWindow
-	6,  // 8: eos.ioshapping.RateReport.app_stats:type_name -> eos.ioshapping.AppRateEntry
-	7,  // 9: eos.ioshapping.RateReport.user_stats:type_name -> eos.ioshapping.UserRateEntry
-	8,  // 10: eos.ioshapping.RateReport.group_stats:type_name -> eos.ioshapping.GroupRateEntry
-	3,  // 11: eos.ioshapping.TrafficShapingService.StreamIoStats:input_type -> eos.ioshapping.FstIoReport
-	9,  // 12: eos.ioshapping.RateReportingService.GetRates:input_type -> eos.ioshapping.RateRequest
-	9,  // 13: eos.ioshapping.RateReportingService.StreamRates:input_type -> eos.ioshapping.RateRequest
-	4,  // 14: eos.ioshapping.TrafficShapingService.StreamIoStats:output_type -> eos.ioshapping.MgmIoResponse
-	10, // 15: eos.ioshapping.RateReportingService.GetRates:output_type -> eos.ioshapping.RateReport
-	10, // 16: eos.ioshapping.RateReportingService.StreamRates:output_type -> eos.ioshapping.RateReport
+	2,  // 0: eos.traffic_shaping.FstIoReport.entries:type_name -> eos.traffic_shaping.IoStatEntry
+	0,  // 1: eos.traffic_shaping.RateStats.window:type_name -> eos.traffic_shaping.RateRequest.TimeWindow
+	5,  // 2: eos.traffic_shaping.AppRateEntry.stats:type_name -> eos.traffic_shaping.RateStats
+	5,  // 3: eos.traffic_shaping.UserRateEntry.stats:type_name -> eos.traffic_shaping.RateStats
+	5,  // 4: eos.traffic_shaping.GroupRateEntry.stats:type_name -> eos.traffic_shaping.RateStats
+	0,  // 5: eos.traffic_shaping.RateRequest.windows:type_name -> eos.traffic_shaping.RateRequest.TimeWindow
+	1,  // 6: eos.traffic_shaping.RateRequest.include_types:type_name -> eos.traffic_shaping.RateRequest.EntityType
+	0,  // 7: eos.traffic_shaping.RateRequest.sort_by_window:type_name -> eos.traffic_shaping.RateRequest.TimeWindow
+	6,  // 8: eos.traffic_shaping.RateReport.app_stats:type_name -> eos.traffic_shaping.AppRateEntry
+	7,  // 9: eos.traffic_shaping.RateReport.user_stats:type_name -> eos.traffic_shaping.UserRateEntry
+	8,  // 10: eos.traffic_shaping.RateReport.group_stats:type_name -> eos.traffic_shaping.GroupRateEntry
+	3,  // 11: eos.traffic_shaping.TrafficShapingService.StreamIoStats:input_type -> eos.traffic_shaping.FstIoReport
+	9,  // 12: eos.traffic_shaping.RateReportingService.GetRates:input_type -> eos.traffic_shaping.RateRequest
+	9,  // 13: eos.traffic_shaping.RateReportingService.StreamRates:input_type -> eos.traffic_shaping.RateRequest
+	4,  // 14: eos.traffic_shaping.TrafficShapingService.StreamIoStats:output_type -> eos.traffic_shaping.MgmIoResponse
+	10, // 15: eos.traffic_shaping.RateReportingService.GetRates:output_type -> eos.traffic_shaping.RateReport
+	10, // 16: eos.traffic_shaping.RateReportingService.StreamRates:output_type -> eos.traffic_shaping.RateReport
 	14, // [14:17] is the sub-list for method output_type
 	11, // [11:14] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name

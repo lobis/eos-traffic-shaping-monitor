@@ -5,14 +5,9 @@
 
 syntax = "proto3";
 
-// TODO: review package name
-package eos.ioshapping;
+package eos.traffic_shaping;
 
 option go_package = "eos_traffic_shaping_monitor/proto";
-
-// Use standard types for timestamps
-// import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 
 // Represents the I/O stats for a single "Stream" (Unique App/UID/GID combo).
 // This is only sent if the counters have changed since the last report.
@@ -102,9 +97,14 @@ message GroupRateEntry {
 message RateRequest {
   enum TimeWindow {
     WINDOW_UNSPECIFIED = 0; // Proto3 best practice (default 0 should be no-op)
-    WINDOW_LIVE_5S = 1;
-    WINDOW_AVG_1M = 2;
-    WINDOW_AVG_5M = 3;
+    // SMA
+    WINDOW_SMA_5S = 1;
+    WINDOW_SMA_1M = 2;
+    WINDOW_SMA_5M = 3;
+    // EMA
+    WINDOW_EMA_5S = 4;
+    WINDOW_EMA_1M = 5;
+    WINDOW_EMA_5M = 6;
   }
   repeated TimeWindow windows = 1;
 

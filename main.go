@@ -75,9 +75,12 @@ func main() {
 func runMonitor(client pb.RateReportingServiceClient, topN uint32) {
 	req := &pb.RateRequest{
 		Windows: []pb.RateRequest_TimeWindow{
-			pb.RateRequest_WINDOW_LIVE_5S,
-			pb.RateRequest_WINDOW_AVG_1M,
-			pb.RateRequest_WINDOW_AVG_5M,
+			pb.RateRequest_WINDOW_EMA_5S,
+			pb.RateRequest_WINDOW_EMA_1M,
+			pb.RateRequest_WINDOW_EMA_5M,
+			pb.RateRequest_WINDOW_SMA_5S,
+			pb.RateRequest_WINDOW_SMA_1M,
+			pb.RateRequest_WINDOW_SMA_5M,
 		},
 		IncludeTypes: []pb.RateRequest_EntityType{
 			pb.RateRequest_ENTITY_APP,
@@ -85,7 +88,7 @@ func runMonitor(client pb.RateReportingServiceClient, topN uint32) {
 			pb.RateRequest_ENTITY_GID, // Added GID support
 		},
 		TopN:         &topN,
-		SortByWindow: pb.RateRequest_WINDOW_LIVE_5S.Enum(),
+		SortByWindow: pb.RateRequest_WINDOW_EMA_5S.Enum(),
 	}
 
 	stream, err := client.StreamRates(context.Background(), req)

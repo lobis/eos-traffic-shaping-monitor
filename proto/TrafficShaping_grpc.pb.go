@@ -9,8 +9,6 @@
 // - protoc             v6.33.4
 // source: proto/TrafficShaping.proto
 
-// TODO: review package name
-
 package proto
 
 import (
@@ -26,7 +24,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TrafficShapingService_StreamIoStats_FullMethodName = "/eos.ioshapping.TrafficShapingService/StreamIoStats"
+	TrafficShapingService_StreamIoStats_FullMethodName = "/eos.traffic_shaping.TrafficShapingService/StreamIoStats"
 )
 
 // TrafficShapingServiceClient is the client API for TrafficShapingService service.
@@ -111,7 +109,7 @@ type TrafficShapingService_StreamIoStatsServer = grpc.BidiStreamingServer[FstIoR
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TrafficShapingService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "eos.ioshapping.TrafficShapingService",
+	ServiceName: "eos.traffic_shaping.TrafficShapingService",
 	HandlerType: (*TrafficShapingServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
@@ -126,8 +124,8 @@ var TrafficShapingService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	RateReportingService_GetRates_FullMethodName    = "/eos.ioshapping.RateReportingService/GetRates"
-	RateReportingService_StreamRates_FullMethodName = "/eos.ioshapping.RateReportingService/StreamRates"
+	RateReportingService_GetRates_FullMethodName    = "/eos.traffic_shaping.RateReportingService/GetRates"
+	RateReportingService_StreamRates_FullMethodName = "/eos.traffic_shaping.RateReportingService/StreamRates"
 )
 
 // RateReportingServiceClient is the client API for RateReportingService service.
@@ -255,7 +253,7 @@ type RateReportingService_StreamRatesServer = grpc.ServerStreamingServer[RateRep
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var RateReportingService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "eos.ioshapping.RateReportingService",
+	ServiceName: "eos.traffic_shaping.RateReportingService",
 	HandlerType: (*RateReportingServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
