@@ -21,6 +21,7 @@ import (
 )
 
 // --- Prometheus Metrics ---
+// Removed IOPS metrics as requested
 var (
 	readBytes = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -36,25 +37,11 @@ var (
 		},
 		[]string{"entity_type", "id", "window"},
 	)
-	readOps = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "eos_io_read_ops_per_second",
-			Help: "Current read IOPS",
-		},
-		[]string{"entity_type", "id", "window"},
-	)
-	writeOps = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "eos_io_write_ops_per_second",
-			Help: "Current write IOPS",
-		},
-		[]string{"entity_type", "id", "window"},
-	)
 )
 
 func init() {
 	// Register metrics with Prometheus
-	prometheus.MustRegister(readBytes, writeBytes, readOps, writeOps)
+	prometheus.MustRegister(readBytes, writeBytes)
 }
 
 func main() {
@@ -84,19 +71,19 @@ func main() {
 }
 
 func runMonitor(client pb.RateReportingServiceClient, topN uint32) {
-	// Prepare Request
-	// We ask for 5s (Spikes) and 1m (Avg) windows
 	req := &pb.RateRequest{
 		Windows: []pb.RateRequest_TimeWindow{
 			pb.RateRequest_WINDOW_LIVE_5S,
 			pb.RateRequest_WINDOW_AVG_1M,
+			pb.RateRequest_WINDOW_AVG_5M,
 		},
 		IncludeTypes: []pb.RateRequest_EntityType{
 			pb.RateRequest_ENTITY_APP,
 			pb.RateRequest_ENTITY_UID,
+			pb.RateRequest_ENTITY_GID, // Added GID support
 		},
 		TopN:         &topN,
-		SortByWindow: pb.RateRequest_WINDOW_LIVE_5S.Enum(), // Sort by instant spikes
+		SortByWindow: pb.RateRequest_WINDOW_LIVE_5S.Enum(),
 	}
 
 	stream, err := client.StreamRates(context.Background(), req)
@@ -112,17 +99,18 @@ func runMonitor(client pb.RateReportingServiceClient, topN uint32) {
 			log.Fatalf("Stream closed: %v", err)
 		}
 
-		// Clear console (ANSI escape) for "top"-like effect
+		// Clear console (ANSI escape)
 		fmt.Print("\033[H\033[2J")
 		fmt.Printf("EOS IO Monitor | Last Update: %s\n\n", time.UnixMilli(report.TimestampMs).Format(time.RFC3339))
 
-		// Reset Metrics to avoid stale data (optional, but good for "Top N" views)
+		// Reset Metrics to avoid stale data
 		readBytes.Reset()
 		writeBytes.Reset()
 
 		// Process & Print
 		printAndExportApps(report.AppStats)
-		printAndExportUsers(report.UserStats)
+		printAndExportUsers(report.UserStats)   // Assuming standard proto mapping (uid_stats -> UidStats)
+		printAndExportGroups(report.GroupStats) // Added Groups
 	}
 }
 
@@ -133,31 +121,23 @@ func printAndExportApps(stats []*pb.AppRateEntry) {
 	}
 	fmt.Println("--- Top Applications ---")
 
-	// Init TabWriter: output, minwidth, tabwidth, padding, padchar, flags
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-
-	// Print Header (Use \t for columns)
-	fmt.Fprintln(w, "App\tWindow\tRead/s\tWrite/s\tR-IOPS\tW-IOPS")
+	fmt.Fprintln(w, "App\tWindow\tRead/s\tWrite/s") // Removed IOPS columns
 
 	for _, entry := range stats {
 		for _, s := range entry.Stats {
 			winName := s.Window.String()
 
-			// Export to Prometheus
 			exportMetric("app", entry.AppName, winName, s)
 
-			// Print Row
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%.1f\t%.1f\n",
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 				entry.AppName,
 				winName,
 				humanizeBytes(s.BytesReadPerSec),
 				humanizeBytes(s.BytesWrittenPerSec),
-				s.IopsRead,
-				s.IopsWrite,
 			)
 		}
 	}
-	// Flush buffer to stdout
 	w.Flush()
 	fmt.Println()
 }
@@ -170,7 +150,7 @@ func printAndExportUsers(stats []*pb.UserRateEntry) {
 	fmt.Println("--- Top Users ---")
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-	fmt.Fprintln(w, "UID\tWindow\tRead/s\tWrite/s\tR-IOPS\tW-IOPS")
+	fmt.Fprintln(w, "UID\tWindow\tRead/s\tWrite/s") // Removed IOPS columns
 
 	for _, entry := range stats {
 		uidStr := strconv.Itoa(int(entry.Uid))
@@ -180,13 +160,41 @@ func printAndExportUsers(stats []*pb.UserRateEntry) {
 
 			exportMetric("uid", uidStr, winName, s)
 
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%.1f\t%.1f\n",
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 				uidStr,
 				winName,
 				humanizeBytes(s.BytesReadPerSec),
 				humanizeBytes(s.BytesWrittenPerSec),
-				s.IopsRead,
-				s.IopsWrite,
+			)
+		}
+	}
+	w.Flush()
+	fmt.Println()
+}
+
+// --- Helper: Group Stats (NEW) ---
+func printAndExportGroups(stats []*pb.GroupRateEntry) {
+	if len(stats) == 0 {
+		return
+	}
+	fmt.Println("--- Top Groups ---")
+
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+	fmt.Fprintln(w, "GID\tWindow\tRead/s\tWrite/s")
+
+	for _, entry := range stats {
+		gidStr := strconv.Itoa(int(entry.Gid))
+
+		for _, s := range entry.Stats {
+			winName := s.Window.String()
+
+			exportMetric("gid", gidStr, winName, s)
+
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
+				gidStr,
+				winName,
+				humanizeBytes(s.BytesReadPerSec),
+				humanizeBytes(s.BytesWrittenPerSec),
 			)
 		}
 	}
@@ -198,8 +206,6 @@ func printAndExportUsers(stats []*pb.UserRateEntry) {
 func exportMetric(eType, id, win string, s *pb.RateStats) {
 	readBytes.WithLabelValues(eType, id, win).Set(s.BytesReadPerSec)
 	writeBytes.WithLabelValues(eType, id, win).Set(s.BytesWrittenPerSec)
-	readOps.WithLabelValues(eType, id, win).Set(s.IopsRead)
-	writeOps.WithLabelValues(eType, id, win).Set(s.IopsWrite)
 }
 
 // --- Utils ---
