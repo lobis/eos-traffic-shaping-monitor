@@ -5,9 +5,9 @@ git clone https://github.com/lobis/eos-traffic-shaping-monitor
 
 cd eos-traffic-shaping-monitor
 
-go install .
+GOBIN=/usr/local/bin go install .
 
-/root/go/bin/eos_traffic_shaping_monitor --help
+/usr/local/bin/eos_traffic_shaping_monitor --help
 ```
 
 Service file (`/etc/systemd/system/eos-traffic-shaping-monitor.service`)
@@ -20,7 +20,7 @@ After=network.target
 [Service]
 Type=simple
 User=root
-ExecStart=/root/go/bin/eos_traffic_shaping_monitor --grpc-host lobisapa-dev-al9.cern.ch --grpc-port 50051 --prometheus-port 9987
+ExecStart=/usr/local/bin/eos_traffic_shaping_monitor --grpc-host lobisapa-dev-al9.cern.ch --grpc-port 50051 --prometheus-port 9987
 Restart=always
 RestartSec=5
 
