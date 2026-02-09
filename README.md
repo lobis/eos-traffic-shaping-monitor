@@ -2,9 +2,10 @@
 
 ```shell
 git clone https://github.com/lobis/eos-traffic-shaping-monitor
-
 cd eos-traffic-shaping-monitor
+```
 
+```shell
 GOBIN=/usr/local/bin go install .
 chmod +x /usr/local/bin/eos_traffic_shaping_monitor
 chmod 755 /usr/local/bin/eos_traffic_shaping_monitor
