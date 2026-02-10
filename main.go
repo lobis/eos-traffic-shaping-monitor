@@ -28,14 +28,14 @@ var (
 			Name: "eos_io_read_bytes_per_second",
 			Help: "Current read throughput in bytes/sec",
 		},
-		[]string{"entity_type", "id", "window"},
+		[]string{"entity_type", "id", "estimator"},
 	)
 	writeBytes = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "eos_io_write_bytes_per_second",
 			Help: "Current write throughput in bytes/sec",
 		},
-		[]string{"entity_type", "id", "window"},
+		[]string{"entity_type", "id", "estimator"},
 	)
 )
 
@@ -127,17 +127,17 @@ func printAndExportApps(stats []*pb.AppRateEntry) {
 	fmt.Println("--- Top Applications ---")
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-	fmt.Fprintln(w, "App\tWindow\tRead/s\tWrite/s") // Removed IOPS columns
+	fmt.Fprintln(w, "App\tEstimator\tRead/s\tWrite/s") // Removed IOPS columns
 
 	for _, entry := range stats {
 		for _, s := range entry.Stats {
-			winName := s.Window.String()
+			estimatorName := s.Window.String()
 
-			exportMetric("app", entry.AppName, winName, s)
+			exportMetric("app", entry.AppName, estimatorName, s)
 
 			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 				entry.AppName,
-				winName,
+				estimatorName,
 				humanizeBytes(s.BytesReadPerSec),
 				humanizeBytes(s.BytesWrittenPerSec),
 			)
