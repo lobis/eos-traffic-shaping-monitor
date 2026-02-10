@@ -48,15 +48,23 @@ func main() {
 	eosGrpcHost := flag.String("grpc-host", "localhost", "EOS MGM gRPC Host")
 	eosGrpcPort := flag.String("grpc-port", "50051", "EOS MGM gRPC Port")
 	prometheusPort := flag.String("prometheus-port", "9987", "Prometheus HTTP Port")
+	promtheusEnable := flag.Bool("enable-prometheus", true, "Enable Prometheus metrics endpoint")
 	topN := flag.Uint("n", 1000, "Top N entries to request")
 	flag.Parse()
 
 	// 1. Start Prometheus Server (Background)
-	go func() {
-		http.Handle("/metrics", promhttp.Handler())
-		log.Printf("Prometheus metrics available at :%s/metrics", *prometheusPort)
-		log.Fatal(http.ListenAndServe(":"+*prometheusPort, nil))
-	}()
+
+	if *promtheusEnable {
+		log.Println("Prometheus metrics endpoint enabled.")
+
+		go func() {
+			http.Handle("/metrics", promhttp.Handler())
+			log.Printf("Prometheus metrics available at :%s/metrics", *prometheusPort)
+			log.Fatal(http.ListenAndServe(":"+*prometheusPort, nil))
+		}()
+	} else {
+		log.Println("Prometheus metrics endpoint disabled.")
+	}
 
 	// 2. Connect to EOS MGM
 	var mgmHost = fmt.Sprintf("%s:%s", *eosGrpcHost, *eosGrpcPort)
