@@ -66,7 +66,7 @@ service TrafficShapingService {
 // --- Core Data Structures ---
 
 message RateStats {
-  RateRequest.TimeWindow window = 1;
+  RateRequest.Estimators window = 1;
 
   double bytes_read_per_sec = 2;
   double bytes_written_per_sec = 3;
@@ -95,18 +95,18 @@ message GroupRateEntry {
 // --- Request Definition ---
 
 message RateRequest {
-  enum TimeWindow {
-    WINDOW_UNSPECIFIED = 0; // Proto3 best practice (default 0 should be no-op)
+  enum Estimators {
+    UNSPECIFIED = 0; // Proto3 best practice (default 0 should be no-op)
     // SMA
-    WINDOW_SMA_5S = 1;
-    WINDOW_SMA_1M = 2;
-    WINDOW_SMA_5M = 3;
+    SMA_5_SECONDS = 1;
+    SMA_1_MINUTES = 2;
+    SMA_5_MINUTES = 3;
     // EMA
-    WINDOW_EMA_5S = 4;
-    WINDOW_EMA_1M = 5;
-    WINDOW_EMA_5M = 6;
+    EMA_5_SECONDS = 4;
+    EMA_1_MINUTES = 5;
+    EMA_5_MINUTES = 6;
   }
-  repeated TimeWindow windows = 1;
+  repeated Estimators estimators = 1;
 
   enum EntityType {
     ENTITY_UNSPECIFIED = 0;
@@ -122,7 +122,7 @@ message RateRequest {
   // --- 4. Sorting Ambiguity Resolver ---
   // If I ask for 5s and 5m windows, which one determines who is in the "Top 10"?
   // (e.g., Sort by 5m trend, but show me the 1s spikes too)
-  optional TimeWindow sort_by_window = 4;
+  optional Estimators sort_by_estimator = 4;
 }
 
 // --- Response Definition ---

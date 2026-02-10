@@ -26,66 +26,66 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type RateRequest_TimeWindow int32
+type RateRequest_Estimators int32
 
 const (
-	RateRequest_WINDOW_UNSPECIFIED RateRequest_TimeWindow = 0 // Proto3 best practice (default 0 should be no-op)
+	RateRequest_UNSPECIFIED RateRequest_Estimators = 0 // Proto3 best practice (default 0 should be no-op)
 	// SMA
-	RateRequest_WINDOW_SMA_5S RateRequest_TimeWindow = 1
-	RateRequest_WINDOW_SMA_1M RateRequest_TimeWindow = 2
-	RateRequest_WINDOW_SMA_5M RateRequest_TimeWindow = 3
+	RateRequest_SMA_5_SECONDS RateRequest_Estimators = 1
+	RateRequest_SMA_1_MINUTES RateRequest_Estimators = 2
+	RateRequest_SMA_5_MINUTES RateRequest_Estimators = 3
 	// EMA
-	RateRequest_WINDOW_EMA_5S RateRequest_TimeWindow = 4
-	RateRequest_WINDOW_EMA_1M RateRequest_TimeWindow = 5
-	RateRequest_WINDOW_EMA_5M RateRequest_TimeWindow = 6
+	RateRequest_EMA_5_SECONDS RateRequest_Estimators = 4
+	RateRequest_EMA_1_MINUTES RateRequest_Estimators = 5
+	RateRequest_EMA_5_MINUTES RateRequest_Estimators = 6
 )
 
-// Enum value maps for RateRequest_TimeWindow.
+// Enum value maps for RateRequest_Estimators.
 var (
-	RateRequest_TimeWindow_name = map[int32]string{
-		0: "WINDOW_UNSPECIFIED",
-		1: "WINDOW_SMA_5S",
-		2: "WINDOW_SMA_1M",
-		3: "WINDOW_SMA_5M",
-		4: "WINDOW_EMA_5S",
-		5: "WINDOW_EMA_1M",
-		6: "WINDOW_EMA_5M",
+	RateRequest_Estimators_name = map[int32]string{
+		0: "UNSPECIFIED",
+		1: "SMA_5_SECONDS",
+		2: "SMA_1_MINUTES",
+		3: "SMA_5_MINUTES",
+		4: "EMA_5_SECONDS",
+		5: "EMA_1_MINUTES",
+		6: "EMA_5_MINUTES",
 	}
-	RateRequest_TimeWindow_value = map[string]int32{
-		"WINDOW_UNSPECIFIED": 0,
-		"WINDOW_SMA_5S":      1,
-		"WINDOW_SMA_1M":      2,
-		"WINDOW_SMA_5M":      3,
-		"WINDOW_EMA_5S":      4,
-		"WINDOW_EMA_1M":      5,
-		"WINDOW_EMA_5M":      6,
+	RateRequest_Estimators_value = map[string]int32{
+		"UNSPECIFIED":   0,
+		"SMA_5_SECONDS": 1,
+		"SMA_1_MINUTES": 2,
+		"SMA_5_MINUTES": 3,
+		"EMA_5_SECONDS": 4,
+		"EMA_1_MINUTES": 5,
+		"EMA_5_MINUTES": 6,
 	}
 )
 
-func (x RateRequest_TimeWindow) Enum() *RateRequest_TimeWindow {
-	p := new(RateRequest_TimeWindow)
+func (x RateRequest_Estimators) Enum() *RateRequest_Estimators {
+	p := new(RateRequest_Estimators)
 	*p = x
 	return p
 }
 
-func (x RateRequest_TimeWindow) String() string {
+func (x RateRequest_Estimators) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (RateRequest_TimeWindow) Descriptor() protoreflect.EnumDescriptor {
+func (RateRequest_Estimators) Descriptor() protoreflect.EnumDescriptor {
 	return file_proto_TrafficShaping_proto_enumTypes[0].Descriptor()
 }
 
-func (RateRequest_TimeWindow) Type() protoreflect.EnumType {
+func (RateRequest_Estimators) Type() protoreflect.EnumType {
 	return &file_proto_TrafficShaping_proto_enumTypes[0]
 }
 
-func (x RateRequest_TimeWindow) Number() protoreflect.EnumNumber {
+func (x RateRequest_Estimators) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use RateRequest_TimeWindow.Descriptor instead.
-func (RateRequest_TimeWindow) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use RateRequest_Estimators.Descriptor instead.
+func (RateRequest_Estimators) EnumDescriptor() ([]byte, []int) {
 	return file_proto_TrafficShaping_proto_rawDescGZIP(), []int{7, 0}
 }
 
@@ -375,7 +375,7 @@ func (x *MgmIoResponse) GetAck() bool {
 
 type RateStats struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	Window             RateRequest_TimeWindow `protobuf:"varint,1,opt,name=window,proto3,enum=eos.traffic_shaping.RateRequest_TimeWindow" json:"window,omitempty"`
+	Window             RateRequest_Estimators `protobuf:"varint,1,opt,name=window,proto3,enum=eos.traffic_shaping.RateRequest_Estimators" json:"window,omitempty"`
 	BytesReadPerSec    float64                `protobuf:"fixed64,2,opt,name=bytes_read_per_sec,json=bytesReadPerSec,proto3" json:"bytes_read_per_sec,omitempty"`
 	BytesWrittenPerSec float64                `protobuf:"fixed64,3,opt,name=bytes_written_per_sec,json=bytesWrittenPerSec,proto3" json:"bytes_written_per_sec,omitempty"`
 	IopsRead           float64                `protobuf:"fixed64,4,opt,name=iops_read,json=iopsRead,proto3" json:"iops_read,omitempty"`
@@ -414,11 +414,11 @@ func (*RateStats) Descriptor() ([]byte, []int) {
 	return file_proto_TrafficShaping_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *RateStats) GetWindow() RateRequest_TimeWindow {
+func (x *RateStats) GetWindow() RateRequest_Estimators {
 	if x != nil {
 		return x.Window
 	}
-	return RateRequest_WINDOW_UNSPECIFIED
+	return RateRequest_UNSPECIFIED
 }
 
 func (x *RateStats) GetBytesReadPerSec() float64 {
@@ -610,16 +610,16 @@ func (x *GroupRateEntry) GetStats() []*RateStats {
 
 type RateRequest struct {
 	state        protoimpl.MessageState   `protogen:"open.v1"`
-	Windows      []RateRequest_TimeWindow `protobuf:"varint,1,rep,packed,name=windows,proto3,enum=eos.traffic_shaping.RateRequest_TimeWindow" json:"windows,omitempty"`
+	Estimators   []RateRequest_Estimators `protobuf:"varint,1,rep,packed,name=estimators,proto3,enum=eos.traffic_shaping.RateRequest_Estimators" json:"estimators,omitempty"`
 	IncludeTypes []RateRequest_EntityType `protobuf:"varint,2,rep,packed,name=include_types,json=includeTypes,proto3,enum=eos.traffic_shaping.RateRequest_EntityType" json:"include_types,omitempty"`
 	// How many top entries to return for each type? (e.g., Top 10 apps)
 	TopN *uint32 `protobuf:"varint,3,opt,name=top_n,json=topN,proto3,oneof" json:"top_n,omitempty"`
 	// --- 4. Sorting Ambiguity Resolver ---
 	// If I ask for 5s and 5m windows, which one determines who is in the "Top 10"?
 	// (e.g., Sort by 5m trend, but show me the 1s spikes too)
-	SortByWindow  *RateRequest_TimeWindow `protobuf:"varint,4,opt,name=sort_by_window,json=sortByWindow,proto3,enum=eos.traffic_shaping.RateRequest_TimeWindow,oneof" json:"sort_by_window,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	SortByEstimator *RateRequest_Estimators `protobuf:"varint,4,opt,name=sort_by_estimator,json=sortByEstimator,proto3,enum=eos.traffic_shaping.RateRequest_Estimators,oneof" json:"sort_by_estimator,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *RateRequest) Reset() {
@@ -652,9 +652,9 @@ func (*RateRequest) Descriptor() ([]byte, []int) {
 	return file_proto_TrafficShaping_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *RateRequest) GetWindows() []RateRequest_TimeWindow {
+func (x *RateRequest) GetEstimators() []RateRequest_Estimators {
 	if x != nil {
-		return x.Windows
+		return x.Estimators
 	}
 	return nil
 }
@@ -673,11 +673,11 @@ func (x *RateRequest) GetTopN() uint32 {
 	return 0
 }
 
-func (x *RateRequest) GetSortByWindow() RateRequest_TimeWindow {
-	if x != nil && x.SortByWindow != nil {
-		return *x.SortByWindow
+func (x *RateRequest) GetSortByEstimator() RateRequest_Estimators {
+	if x != nil && x.SortByEstimator != nil {
+		return *x.SortByEstimator
 	}
-	return RateRequest_WINDOW_UNSPECIFIED
+	return RateRequest_UNSPECIFIED
 }
 
 type RateReport struct {
@@ -771,7 +771,7 @@ const file_proto_TrafficShaping_proto_rawDesc = "" +
 	"\rMgmIoResponse\x12\x10\n" +
 	"\x03ack\x18\x01 \x01(\bR\x03ack\"\xec\x01\n" +
 	"\tRateStats\x12C\n" +
-	"\x06window\x18\x01 \x01(\x0e2+.eos.traffic_shaping.RateRequest.TimeWindowR\x06window\x12+\n" +
+	"\x06window\x18\x01 \x01(\x0e2+.eos.traffic_shaping.RateRequest.EstimatorsR\x06window\x12+\n" +
 	"\x12bytes_read_per_sec\x18\x02 \x01(\x01R\x0fbytesReadPerSec\x121\n" +
 	"\x15bytes_written_per_sec\x18\x03 \x01(\x01R\x12bytesWrittenPerSec\x12\x1b\n" +
 	"\tiops_read\x18\x04 \x01(\x01R\biopsRead\x12\x1d\n" +
@@ -785,21 +785,23 @@ const file_proto_TrafficShaping_proto_rawDesc = "" +
 	"\x05stats\x18\x02 \x03(\v2\x1e.eos.traffic_shaping.RateStatsR\x05stats\"X\n" +
 	"\x0eGroupRateEntry\x12\x10\n" +
 	"\x03gid\x18\x01 \x01(\rR\x03gid\x124\n" +
-	"\x05stats\x18\x02 \x03(\v2\x1e.eos.traffic_shaping.RateStatsR\x05stats\"\xa4\x04\n" +
-	"\vRateRequest\x12E\n" +
-	"\awindows\x18\x01 \x03(\x0e2+.eos.traffic_shaping.RateRequest.TimeWindowR\awindows\x12P\n" +
-	"\rinclude_types\x18\x02 \x03(\x0e2+.eos.traffic_shaping.RateRequest.EntityTypeR\fincludeTypes\x12\x18\n" +
-	"\x05top_n\x18\x03 \x01(\rH\x00R\x04topN\x88\x01\x01\x12V\n" +
-	"\x0esort_by_window\x18\x04 \x01(\x0e2+.eos.traffic_shaping.RateRequest.TimeWindowH\x01R\fsortByWindow\x88\x01\x01\"\x96\x01\n" +
+	"\x05stats\x18\x02 \x03(\v2\x1e.eos.traffic_shaping.RateStatsR\x05stats\"\xac\x04\n" +
+	"\vRateRequest\x12K\n" +
 	"\n" +
-	"TimeWindow\x12\x16\n" +
-	"\x12WINDOW_UNSPECIFIED\x10\x00\x12\x11\n" +
-	"\rWINDOW_SMA_5S\x10\x01\x12\x11\n" +
-	"\rWINDOW_SMA_1M\x10\x02\x12\x11\n" +
-	"\rWINDOW_SMA_5M\x10\x03\x12\x11\n" +
-	"\rWINDOW_EMA_5S\x10\x04\x12\x11\n" +
-	"\rWINDOW_EMA_1M\x10\x05\x12\x11\n" +
-	"\rWINDOW_EMA_5M\x10\x06\"T\n" +
+	"estimators\x18\x01 \x03(\x0e2+.eos.traffic_shaping.RateRequest.EstimatorsR\n" +
+	"estimators\x12P\n" +
+	"\rinclude_types\x18\x02 \x03(\x0e2+.eos.traffic_shaping.RateRequest.EntityTypeR\fincludeTypes\x12\x18\n" +
+	"\x05top_n\x18\x03 \x01(\rH\x00R\x04topN\x88\x01\x01\x12\\\n" +
+	"\x11sort_by_estimator\x18\x04 \x01(\x0e2+.eos.traffic_shaping.RateRequest.EstimatorsH\x01R\x0fsortByEstimator\x88\x01\x01\"\x8f\x01\n" +
+	"\n" +
+	"Estimators\x12\x0f\n" +
+	"\vUNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rSMA_5_SECONDS\x10\x01\x12\x11\n" +
+	"\rSMA_1_MINUTES\x10\x02\x12\x11\n" +
+	"\rSMA_5_MINUTES\x10\x03\x12\x11\n" +
+	"\rEMA_5_SECONDS\x10\x04\x12\x11\n" +
+	"\rEMA_1_MINUTES\x10\x05\x12\x11\n" +
+	"\rEMA_5_MINUTES\x10\x06\"T\n" +
 	"\n" +
 	"EntityType\x12\x16\n" +
 	"\x12ENTITY_UNSPECIFIED\x10\x00\x12\x0e\n" +
@@ -809,8 +811,8 @@ const file_proto_TrafficShaping_proto_rawDesc = "" +
 	"ENTITY_UID\x10\x02\x12\x0e\n" +
 	"\n" +
 	"ENTITY_GID\x10\x03B\b\n" +
-	"\x06_top_nB\x11\n" +
-	"\x0f_sort_by_window\"\xf8\x01\n" +
+	"\x06_top_nB\x14\n" +
+	"\x12_sort_by_estimator\"\xf8\x01\n" +
 	"\n" +
 	"RateReport\x12!\n" +
 	"\ftimestamp_ms\x18\x01 \x01(\x03R\vtimestampMs\x12>\n" +
@@ -840,7 +842,7 @@ func file_proto_TrafficShaping_proto_rawDescGZIP() []byte {
 var file_proto_TrafficShaping_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_proto_TrafficShaping_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_proto_TrafficShaping_proto_goTypes = []any{
-	(RateRequest_TimeWindow)(0), // 0: eos.traffic_shaping.RateRequest.TimeWindow
+	(RateRequest_Estimators)(0), // 0: eos.traffic_shaping.RateRequest.Estimators
 	(RateRequest_EntityType)(0), // 1: eos.traffic_shaping.RateRequest.EntityType
 	(*IoStatEntry)(nil),         // 2: eos.traffic_shaping.IoStatEntry
 	(*FstIoReport)(nil),         // 3: eos.traffic_shaping.FstIoReport
@@ -854,13 +856,13 @@ var file_proto_TrafficShaping_proto_goTypes = []any{
 }
 var file_proto_TrafficShaping_proto_depIdxs = []int32{
 	2,  // 0: eos.traffic_shaping.FstIoReport.entries:type_name -> eos.traffic_shaping.IoStatEntry
-	0,  // 1: eos.traffic_shaping.RateStats.window:type_name -> eos.traffic_shaping.RateRequest.TimeWindow
+	0,  // 1: eos.traffic_shaping.RateStats.window:type_name -> eos.traffic_shaping.RateRequest.Estimators
 	5,  // 2: eos.traffic_shaping.AppRateEntry.stats:type_name -> eos.traffic_shaping.RateStats
 	5,  // 3: eos.traffic_shaping.UserRateEntry.stats:type_name -> eos.traffic_shaping.RateStats
 	5,  // 4: eos.traffic_shaping.GroupRateEntry.stats:type_name -> eos.traffic_shaping.RateStats
-	0,  // 5: eos.traffic_shaping.RateRequest.windows:type_name -> eos.traffic_shaping.RateRequest.TimeWindow
+	0,  // 5: eos.traffic_shaping.RateRequest.estimators:type_name -> eos.traffic_shaping.RateRequest.Estimators
 	1,  // 6: eos.traffic_shaping.RateRequest.include_types:type_name -> eos.traffic_shaping.RateRequest.EntityType
-	0,  // 7: eos.traffic_shaping.RateRequest.sort_by_window:type_name -> eos.traffic_shaping.RateRequest.TimeWindow
+	0,  // 7: eos.traffic_shaping.RateRequest.sort_by_estimator:type_name -> eos.traffic_shaping.RateRequest.Estimators
 	6,  // 8: eos.traffic_shaping.RateReport.app_stats:type_name -> eos.traffic_shaping.AppRateEntry
 	7,  // 9: eos.traffic_shaping.RateReport.user_stats:type_name -> eos.traffic_shaping.UserRateEntry
 	8,  // 10: eos.traffic_shaping.RateReport.group_stats:type_name -> eos.traffic_shaping.GroupRateEntry
