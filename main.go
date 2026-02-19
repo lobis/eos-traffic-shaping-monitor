@@ -1,5 +1,7 @@
 package main
 
+//go:generate buf generate
+
 import (
 	"context"
 	"flag"
@@ -16,8 +18,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	// UPDATE THIS PATH to match where you generated your Go proto files
-	pb "eos_traffic_shaping_monitor/proto"
+	pb "eos_traffic_shaping_monitor/eos-grpc-proto/build"
 )
 
 // --- Prometheus Metrics ---

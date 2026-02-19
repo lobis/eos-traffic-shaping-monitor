@@ -1,0 +1,4 @@
+[submodule "eos-grpc-proto"]
+	path = eos-grpc-proto
+	url = https://gitlab.cern.ch/eos/grpc-proto.git
+	branch = traffic-shaping-refactor-1
