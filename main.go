@@ -38,11 +38,24 @@ var (
 		},
 		[]string{"entity_type", "id", "estimator"},
 	)
+	// NEW: Elapsed time metrics
+	fstUpdateMicros = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "eos_io_fst_limits_update_microseconds",
+			Help: "Time taken to calculate limits and update FSTs in microseconds",
+		},
+	)
+	estimatorsUpdateMicros = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "eos_io_estimators_update_microseconds",
+			Help: "Time taken to calculate rate estimators in microseconds",
+		},
+	)
 )
 
 func init() {
 	// Register metrics with Prometheus
-	prometheus.MustRegister(readBytes, writeBytes)
+	prometheus.MustRegister(readBytes, writeBytes, fstUpdateMicros, estimatorsUpdateMicros)
 }
 
 func main() {
@@ -113,18 +126,28 @@ func runMonitor(client pb.EosClient, topN uint32) {
 			log.Fatalf("Stream closed: %v", err)
 		}
 
-		// Clear console (ANSI escape)
-		fmt.Print("\033[H\033[2J")
-		fmt.Printf("EOS IO Monitor | Last Update: %s\n\n", time.UnixMilli(report.TimestampMs).Format(time.RFC3339))
+		// Process & Print
+		printAndExportApps(report.AppStats)
+		printAndExportUsers(report.UserStats)   // Assuming standard proto mapping (uid_stats -> UidStats)
+		printAndExportGroups(report.GroupStats) // Added Groups
+
+		fstDuration := time.Duration(report.FstLimitsUpdateElapsedTimeMicroSec) * time.Microsecond
+		estDuration := time.Duration(report.EstimatorsUpdateElapsedTimeMicroSec) * time.Microsecond
+
+		fmt.Printf("EOS IO Monitor | Last Update: %s\n", time.UnixMilli(report.TimestampMs).Format(time.RFC3339))
+		fmt.Printf("Update Times   | FST Limits: %s | Estimators: %s\n\n", fstDuration, estDuration)
+
+		// NEW: Export to Prometheus (requires converting uint64 to float64)
+		fstUpdateMicros.Set(float64(report.FstLimitsUpdateElapsedTimeMicroSec))
+		estimatorsUpdateMicros.Set(float64(report.EstimatorsUpdateElapsedTimeMicroSec))
 
 		// Reset Metrics to avoid stale data
 		readBytes.Reset()
 		writeBytes.Reset()
 
-		// Process & Print
-		printAndExportApps(report.AppStats)
-		printAndExportUsers(report.UserStats)   // Assuming standard proto mapping (uid_stats -> UidStats)
-		printAndExportGroups(report.GroupStats) // Added Groups
+		// Clear console (ANSI escape)
+		fmt.Print("\033[H\033[2J")
+		fmt.Printf("EOS IO Monitor | Last Update: %s\n\n", time.UnixMilli(report.TimestampMs).Format(time.RFC3339))
 	}
 }
 
