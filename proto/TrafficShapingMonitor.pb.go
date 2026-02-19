@@ -143,14 +143,14 @@ func (TrafficShapingRateRequest_EntityType) EnumDescriptor() ([]byte, []int) {
 
 type TrafficShapingRateRequest struct {
 	state        protoimpl.MessageState                 `protogen:"open.v1"`
-	Estimators   []TrafficShapingRateRequest_Estimators `protobuf:"varint,1,rep,packed,name=estimators,proto3,enum=eos.traffic_shaping.TrafficShapingRateRequest_Estimators" json:"estimators,omitempty"`
-	IncludeTypes []TrafficShapingRateRequest_EntityType `protobuf:"varint,2,rep,packed,name=include_types,json=includeTypes,proto3,enum=eos.traffic_shaping.TrafficShapingRateRequest_EntityType" json:"include_types,omitempty"`
+	Estimators   []TrafficShapingRateRequest_Estimators `protobuf:"varint,1,rep,packed,name=estimators,proto3,enum=eos.rpc.TrafficShapingRateRequest_Estimators" json:"estimators,omitempty"`
+	IncludeTypes []TrafficShapingRateRequest_EntityType `protobuf:"varint,2,rep,packed,name=include_types,json=includeTypes,proto3,enum=eos.rpc.TrafficShapingRateRequest_EntityType" json:"include_types,omitempty"`
 	// How many top entries to return for each type? (e.g., Top 10 apps)
 	TopN *uint32 `protobuf:"varint,3,opt,name=top_n,json=topN,proto3,oneof" json:"top_n,omitempty"`
 	// --- 4. Sorting Ambiguity Resolver ---
 	// If I ask for 5s and 5m windows, which one determines who is in the "Top 10"?
 	// (e.g., Sort by 5m trend, but show me the 1s spikes too)
-	SortByEstimator *TrafficShapingRateRequest_Estimators `protobuf:"varint,4,opt,name=sort_by_estimator,json=sortByEstimator,proto3,enum=eos.traffic_shaping.TrafficShapingRateRequest_Estimators,oneof" json:"sort_by_estimator,omitempty"`
+	SortByEstimator *TrafficShapingRateRequest_Estimators `protobuf:"varint,4,opt,name=sort_by_estimator,json=sortByEstimator,proto3,enum=eos.rpc.TrafficShapingRateRequest_Estimators,oneof" json:"sort_by_estimator,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -443,7 +443,7 @@ func (x *GroupRateEntry) GetStats() []*RateStats {
 
 type RateStats struct {
 	state              protoimpl.MessageState               `protogen:"open.v1"`
-	Window             TrafficShapingRateRequest_Estimators `protobuf:"varint,1,opt,name=window,proto3,enum=eos.traffic_shaping.TrafficShapingRateRequest_Estimators" json:"window,omitempty"`
+	Window             TrafficShapingRateRequest_Estimators `protobuf:"varint,1,opt,name=window,proto3,enum=eos.rpc.TrafficShapingRateRequest_Estimators" json:"window,omitempty"`
 	BytesReadPerSec    float64                              `protobuf:"fixed64,2,opt,name=bytes_read_per_sec,json=bytesReadPerSec,proto3" json:"bytes_read_per_sec,omitempty"`
 	BytesWrittenPerSec float64                              `protobuf:"fixed64,3,opt,name=bytes_written_per_sec,json=bytesWrittenPerSec,proto3" json:"bytes_written_per_sec,omitempty"`
 	IopsRead           float64                              `protobuf:"fixed64,4,opt,name=iops_read,json=iopsRead,proto3" json:"iops_read,omitempty"`
@@ -521,14 +521,14 @@ var File_proto_TrafficShapingMonitor_proto protoreflect.FileDescriptor
 
 const file_proto_TrafficShapingMonitor_proto_rawDesc = "" +
 	"\n" +
-	"!proto/TrafficShapingMonitor.proto\x12\x13eos.traffic_shaping\"\xe4\x04\n" +
-	"\x19TrafficShapingRateRequest\x12Y\n" +
+	"!proto/TrafficShapingMonitor.proto\x12\aeos.rpc\"\xc0\x04\n" +
+	"\x19TrafficShapingRateRequest\x12M\n" +
 	"\n" +
-	"estimators\x18\x01 \x03(\x0e29.eos.traffic_shaping.TrafficShapingRateRequest.EstimatorsR\n" +
-	"estimators\x12^\n" +
-	"\rinclude_types\x18\x02 \x03(\x0e29.eos.traffic_shaping.TrafficShapingRateRequest.EntityTypeR\fincludeTypes\x12\x18\n" +
-	"\x05top_n\x18\x03 \x01(\rH\x00R\x04topN\x88\x01\x01\x12j\n" +
-	"\x11sort_by_estimator\x18\x04 \x01(\x0e29.eos.traffic_shaping.TrafficShapingRateRequest.EstimatorsH\x01R\x0fsortByEstimator\x88\x01\x01\"\x8f\x01\n" +
+	"estimators\x18\x01 \x03(\x0e2-.eos.rpc.TrafficShapingRateRequest.EstimatorsR\n" +
+	"estimators\x12R\n" +
+	"\rinclude_types\x18\x02 \x03(\x0e2-.eos.rpc.TrafficShapingRateRequest.EntityTypeR\fincludeTypes\x12\x18\n" +
+	"\x05top_n\x18\x03 \x01(\rH\x00R\x04topN\x88\x01\x01\x12^\n" +
+	"\x11sort_by_estimator\x18\x04 \x01(\x0e2-.eos.rpc.TrafficShapingRateRequest.EstimatorsH\x01R\x0fsortByEstimator\x88\x01\x01\"\x8f\x01\n" +
 	"\n" +
 	"Estimators\x12\x0f\n" +
 	"\vUNSPECIFIED\x10\x00\x12\x11\n" +
@@ -548,32 +548,32 @@ const file_proto_TrafficShapingMonitor_proto_rawDesc = "" +
 	"\n" +
 	"ENTITY_GID\x10\x03B\b\n" +
 	"\x06_top_nB\x14\n" +
-	"\x12_sort_by_estimator\"\x88\x02\n" +
+	"\x12_sort_by_estimator\"\xe4\x01\n" +
 	"\x1aTrafficShapingRateResponse\x12!\n" +
-	"\ftimestamp_ms\x18\x01 \x01(\x03R\vtimestampMs\x12>\n" +
-	"\tapp_stats\x18\x02 \x03(\v2!.eos.traffic_shaping.AppRateEntryR\bappStats\x12A\n" +
+	"\ftimestamp_ms\x18\x01 \x01(\x03R\vtimestampMs\x122\n" +
+	"\tapp_stats\x18\x02 \x03(\v2\x15.eos.rpc.AppRateEntryR\bappStats\x125\n" +
 	"\n" +
-	"user_stats\x18\x03 \x03(\v2\".eos.traffic_shaping.UserRateEntryR\tuserStats\x12D\n" +
-	"\vgroup_stats\x18\x04 \x03(\v2#.eos.traffic_shaping.GroupRateEntryR\n" +
-	"groupStats\"_\n" +
+	"user_stats\x18\x03 \x03(\v2\x16.eos.rpc.UserRateEntryR\tuserStats\x128\n" +
+	"\vgroup_stats\x18\x04 \x03(\v2\x17.eos.rpc.GroupRateEntryR\n" +
+	"groupStats\"S\n" +
 	"\fAppRateEntry\x12\x19\n" +
-	"\bapp_name\x18\x01 \x01(\tR\aappName\x124\n" +
-	"\x05stats\x18\x02 \x03(\v2\x1e.eos.traffic_shaping.RateStatsR\x05stats\"W\n" +
+	"\bapp_name\x18\x01 \x01(\tR\aappName\x12(\n" +
+	"\x05stats\x18\x02 \x03(\v2\x12.eos.rpc.RateStatsR\x05stats\"K\n" +
 	"\rUserRateEntry\x12\x10\n" +
-	"\x03uid\x18\x01 \x01(\rR\x03uid\x124\n" +
-	"\x05stats\x18\x02 \x03(\v2\x1e.eos.traffic_shaping.RateStatsR\x05stats\"X\n" +
+	"\x03uid\x18\x01 \x01(\rR\x03uid\x12(\n" +
+	"\x05stats\x18\x02 \x03(\v2\x12.eos.rpc.RateStatsR\x05stats\"L\n" +
 	"\x0eGroupRateEntry\x12\x10\n" +
-	"\x03gid\x18\x01 \x01(\rR\x03gid\x124\n" +
-	"\x05stats\x18\x02 \x03(\v2\x1e.eos.traffic_shaping.RateStatsR\x05stats\"\xfa\x01\n" +
-	"\tRateStats\x12Q\n" +
-	"\x06window\x18\x01 \x01(\x0e29.eos.traffic_shaping.TrafficShapingRateRequest.EstimatorsR\x06window\x12+\n" +
+	"\x03gid\x18\x01 \x01(\rR\x03gid\x12(\n" +
+	"\x05stats\x18\x02 \x03(\v2\x12.eos.rpc.RateStatsR\x05stats\"\xee\x01\n" +
+	"\tRateStats\x12E\n" +
+	"\x06window\x18\x01 \x01(\x0e2-.eos.rpc.TrafficShapingRateRequest.EstimatorsR\x06window\x12+\n" +
 	"\x12bytes_read_per_sec\x18\x02 \x01(\x01R\x0fbytesReadPerSec\x121\n" +
 	"\x15bytes_written_per_sec\x18\x03 \x01(\x01R\x12bytesWrittenPerSec\x12\x1b\n" +
 	"\tiops_read\x18\x04 \x01(\x01R\biopsRead\x12\x1d\n" +
 	"\n" +
-	"iops_write\x18\x05 \x01(\x01R\tiopsWrite2\x80\x01\n" +
-	"\x03Eos\x12y\n" +
-	"\x12TrafficShapingRate\x12..eos.traffic_shaping.TrafficShapingRateRequest\x1a/.eos.traffic_shaping.TrafficShapingRateResponse\"\x000\x01B#Z!eos_traffic_shaping_monitor/protob\x06proto3"
+	"iops_write\x18\x05 \x01(\x01R\tiopsWrite2h\n" +
+	"\x03Eos\x12a\n" +
+	"\x12TrafficShapingRate\x12\".eos.rpc.TrafficShapingRateRequest\x1a#.eos.rpc.TrafficShapingRateResponse\"\x000\x01B#Z!eos_traffic_shaping_monitor/protob\x06proto3"
 
 var (
 	file_proto_TrafficShapingMonitor_proto_rawDescOnce sync.Once
@@ -590,28 +590,28 @@ func file_proto_TrafficShapingMonitor_proto_rawDescGZIP() []byte {
 var file_proto_TrafficShapingMonitor_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_proto_TrafficShapingMonitor_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_proto_TrafficShapingMonitor_proto_goTypes = []any{
-	(TrafficShapingRateRequest_Estimators)(0), // 0: eos.traffic_shaping.TrafficShapingRateRequest.Estimators
-	(TrafficShapingRateRequest_EntityType)(0), // 1: eos.traffic_shaping.TrafficShapingRateRequest.EntityType
-	(*TrafficShapingRateRequest)(nil),         // 2: eos.traffic_shaping.TrafficShapingRateRequest
-	(*TrafficShapingRateResponse)(nil),        // 3: eos.traffic_shaping.TrafficShapingRateResponse
-	(*AppRateEntry)(nil),                      // 4: eos.traffic_shaping.AppRateEntry
-	(*UserRateEntry)(nil),                     // 5: eos.traffic_shaping.UserRateEntry
-	(*GroupRateEntry)(nil),                    // 6: eos.traffic_shaping.GroupRateEntry
-	(*RateStats)(nil),                         // 7: eos.traffic_shaping.RateStats
+	(TrafficShapingRateRequest_Estimators)(0), // 0: eos.rpc.TrafficShapingRateRequest.Estimators
+	(TrafficShapingRateRequest_EntityType)(0), // 1: eos.rpc.TrafficShapingRateRequest.EntityType
+	(*TrafficShapingRateRequest)(nil),         // 2: eos.rpc.TrafficShapingRateRequest
+	(*TrafficShapingRateResponse)(nil),        // 3: eos.rpc.TrafficShapingRateResponse
+	(*AppRateEntry)(nil),                      // 4: eos.rpc.AppRateEntry
+	(*UserRateEntry)(nil),                     // 5: eos.rpc.UserRateEntry
+	(*GroupRateEntry)(nil),                    // 6: eos.rpc.GroupRateEntry
+	(*RateStats)(nil),                         // 7: eos.rpc.RateStats
 }
 var file_proto_TrafficShapingMonitor_proto_depIdxs = []int32{
-	0,  // 0: eos.traffic_shaping.TrafficShapingRateRequest.estimators:type_name -> eos.traffic_shaping.TrafficShapingRateRequest.Estimators
-	1,  // 1: eos.traffic_shaping.TrafficShapingRateRequest.include_types:type_name -> eos.traffic_shaping.TrafficShapingRateRequest.EntityType
-	0,  // 2: eos.traffic_shaping.TrafficShapingRateRequest.sort_by_estimator:type_name -> eos.traffic_shaping.TrafficShapingRateRequest.Estimators
-	4,  // 3: eos.traffic_shaping.TrafficShapingRateResponse.app_stats:type_name -> eos.traffic_shaping.AppRateEntry
-	5,  // 4: eos.traffic_shaping.TrafficShapingRateResponse.user_stats:type_name -> eos.traffic_shaping.UserRateEntry
-	6,  // 5: eos.traffic_shaping.TrafficShapingRateResponse.group_stats:type_name -> eos.traffic_shaping.GroupRateEntry
-	7,  // 6: eos.traffic_shaping.AppRateEntry.stats:type_name -> eos.traffic_shaping.RateStats
-	7,  // 7: eos.traffic_shaping.UserRateEntry.stats:type_name -> eos.traffic_shaping.RateStats
-	7,  // 8: eos.traffic_shaping.GroupRateEntry.stats:type_name -> eos.traffic_shaping.RateStats
-	0,  // 9: eos.traffic_shaping.RateStats.window:type_name -> eos.traffic_shaping.TrafficShapingRateRequest.Estimators
-	2,  // 10: eos.traffic_shaping.Eos.TrafficShapingRate:input_type -> eos.traffic_shaping.TrafficShapingRateRequest
-	3,  // 11: eos.traffic_shaping.Eos.TrafficShapingRate:output_type -> eos.traffic_shaping.TrafficShapingRateResponse
+	0,  // 0: eos.rpc.TrafficShapingRateRequest.estimators:type_name -> eos.rpc.TrafficShapingRateRequest.Estimators
+	1,  // 1: eos.rpc.TrafficShapingRateRequest.include_types:type_name -> eos.rpc.TrafficShapingRateRequest.EntityType
+	0,  // 2: eos.rpc.TrafficShapingRateRequest.sort_by_estimator:type_name -> eos.rpc.TrafficShapingRateRequest.Estimators
+	4,  // 3: eos.rpc.TrafficShapingRateResponse.app_stats:type_name -> eos.rpc.AppRateEntry
+	5,  // 4: eos.rpc.TrafficShapingRateResponse.user_stats:type_name -> eos.rpc.UserRateEntry
+	6,  // 5: eos.rpc.TrafficShapingRateResponse.group_stats:type_name -> eos.rpc.GroupRateEntry
+	7,  // 6: eos.rpc.AppRateEntry.stats:type_name -> eos.rpc.RateStats
+	7,  // 7: eos.rpc.UserRateEntry.stats:type_name -> eos.rpc.RateStats
+	7,  // 8: eos.rpc.GroupRateEntry.stats:type_name -> eos.rpc.RateStats
+	0,  // 9: eos.rpc.RateStats.window:type_name -> eos.rpc.TrafficShapingRateRequest.Estimators
+	2,  // 10: eos.rpc.Eos.TrafficShapingRate:input_type -> eos.rpc.TrafficShapingRateRequest
+	3,  // 11: eos.rpc.Eos.TrafficShapingRate:output_type -> eos.rpc.TrafficShapingRateResponse
 	11, // [11:12] is the sub-list for method output_type
 	10, // [10:11] is the sub-list for method input_type
 	10, // [10:10] is the sub-list for extension type_name

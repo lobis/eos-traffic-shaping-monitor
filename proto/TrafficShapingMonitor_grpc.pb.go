@@ -24,7 +24,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Eos_TrafficShapingRate_FullMethodName = "/eos.traffic_shaping.Eos/TrafficShapingRate"
+	Eos_TrafficShapingRate_FullMethodName = "/eos.rpc.Eos/TrafficShapingRate"
 )
 
 // EosClient is the client API for Eos service.
@@ -115,7 +115,7 @@ type Eos_TrafficShapingRateServer = grpc.ServerStreamingServer[TrafficShapingRat
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Eos_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "eos.traffic_shaping.Eos",
+	ServiceName: "eos.rpc.Eos",
 	HandlerType: (*EosServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{

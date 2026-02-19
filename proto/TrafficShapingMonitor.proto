@@ -5,7 +5,7 @@
 
 syntax = "proto3";
 
-package eos.traffic_shaping;
+package eos.rpc;
 
 option go_package = "eos_traffic_shaping_monitor/proto";
 
