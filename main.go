@@ -21,8 +21,6 @@ import (
 	pb "eos_traffic_shaping_monitor/eos-grpc-proto/build"
 )
 
-// --- Prometheus Metrics ---
-// Removed IOPS metrics as requested
 var (
 	readBytes = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -38,7 +36,6 @@ var (
 		},
 		[]string{"entity_type", "id", "estimator"},
 	)
-	// NEW: Elapsed time metrics
 	fstUpdateMicros = prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Name: "eos_io_fst_limits_update_microseconds",
@@ -54,7 +51,6 @@ var (
 )
 
 func init() {
-	// Register metrics with Prometheus
 	prometheus.MustRegister(readBytes, writeBytes, fstUpdateMicros, estimatorsUpdateMicros)
 }
 
@@ -65,8 +61,6 @@ func main() {
 	prometheusDisable := flag.Bool("enable-prometheus", false, "Disable Prometheus metrics endpoint")
 	topN := flag.Uint("n", 1000, "Top N entries to request")
 	flag.Parse()
-
-	// 1. Start Prometheus Server (Background)
 
 	if !*prometheusDisable {
 		log.Println("Prometheus metrics endpoint enabled.")
@@ -80,7 +74,6 @@ func main() {
 		log.Println("Prometheus metrics endpoint disabled.")
 	}
 
-	// 2. Connect to EOS MGM
 	var mgmHost = fmt.Sprintf("%s:%s", *eosGrpcHost, *eosGrpcPort)
 	conn, err := grpc.NewClient(mgmHost, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -90,7 +83,6 @@ func main() {
 
 	client := pb.NewEosClient(conn)
 
-	// 3. Start Streaming Loop
 	runMonitor(client, uint32(*topN))
 }
 
@@ -126,10 +118,8 @@ func runMonitor(client pb.EosClient, topN uint32) {
 			log.Fatalf("Stream closed: %v", err)
 		}
 
-		// Process & Print
-		printAndExportApps(report.AppStats)
-		printAndExportUsers(report.UserStats)   // Assuming standard proto mapping (uid_stats -> UidStats)
-		printAndExportGroups(report.GroupStats) // Added Groups
+		// 1. Clear console and print headers FIRST
+		fmt.Print("\033[H\033[2J")
 
 		fstDuration := time.Duration(report.FstLimitsUpdateElapsedTimeMicroSec) * time.Microsecond
 		estDuration := time.Duration(report.EstimatorsUpdateElapsedTimeMicroSec) * time.Microsecond
@@ -137,21 +127,23 @@ func runMonitor(client pb.EosClient, topN uint32) {
 		fmt.Printf("EOS IO Monitor | Last Update: %s\n", time.UnixMilli(report.TimestampMs).Format(time.RFC3339))
 		fmt.Printf("Update Times   | FST Limits: %s | Estimators: %s\n\n", fstDuration, estDuration)
 
-		// NEW: Export to Prometheus (requires converting uint64 to float64)
+		// 2. Set global Prometheus metrics
 		fstUpdateMicros.Set(float64(report.FstLimitsUpdateElapsedTimeMicroSec))
 		estimatorsUpdateMicros.Set(float64(report.EstimatorsUpdateElapsedTimeMicroSec))
 
-		// Reset Metrics to avoid stale data
+		// 3. Reset the vector metrics BEFORE processing the new batch
+		// This ensures we clear out old data, but keep the new data alive
+		// long enough for Prometheus to actually scrape it.
 		readBytes.Reset()
 		writeBytes.Reset()
 
-		// Clear console (ANSI escape)
-		fmt.Print("\033[H\033[2J")
-		fmt.Printf("EOS IO Monitor | Last Update: %s\n\n", time.UnixMilli(report.TimestampMs).Format(time.RFC3339))
+		// 4. Process, Print, and Export the details LAST
+		printAndExportApps(report.AppStats)
+		printAndExportUsers(report.UserStats)
+		printAndExportGroups(report.GroupStats)
 	}
 }
 
-// --- Helper: App Stats ---
 func printAndExportApps(stats []*pb.AppRateEntry) {
 	if len(stats) == 0 {
 		return
@@ -179,7 +171,6 @@ func printAndExportApps(stats []*pb.AppRateEntry) {
 	fmt.Println()
 }
 
-// --- Helper: User Stats ---
 func printAndExportUsers(stats []*pb.UserRateEntry) {
 	if len(stats) == 0 {
 		return
@@ -209,7 +200,6 @@ func printAndExportUsers(stats []*pb.UserRateEntry) {
 	fmt.Println()
 }
 
-// --- Helper: Group Stats (NEW) ---
 func printAndExportGroups(stats []*pb.GroupRateEntry) {
 	if len(stats) == 0 {
 		return
@@ -239,13 +229,11 @@ func printAndExportGroups(stats []*pb.GroupRateEntry) {
 	fmt.Println()
 }
 
-// --- Common Export Logic ---
 func exportMetric(eType, id, win string, s *pb.RateStats) {
 	readBytes.WithLabelValues(eType, id, win).Set(s.BytesReadPerSec)
 	writeBytes.WithLabelValues(eType, id, win).Set(s.BytesWrittenPerSec)
 }
 
-// --- Utils ---
 func humanizeBytes(s float64) string {
 	sizes := []string{"B", "KB", "MB", "GB", "TB"}
 	i := 0
