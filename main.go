@@ -146,8 +146,8 @@ func runMonitor(client pb.EosClient, topN uint32) {
 		fmt.Println()
 
 		// 3. Reset the vector metrics BEFORE processing the new batch
-		// readBytes.Reset()
-		// writeBytes.Reset()
+		readBytes.Reset()
+		writeBytes.Reset()
 
 		// 4. Process, Print, and Export the details LAST
 		printAndExportApps(report.AppStats)
