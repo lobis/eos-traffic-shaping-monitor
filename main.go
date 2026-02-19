@@ -74,32 +74,32 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := pb.NewRateReportingServiceClient(conn)
+	client := pb.NewEosClient(conn)
 
 	// 3. Start Streaming Loop
 	runMonitor(client, uint32(*topN))
 }
 
-func runMonitor(client pb.RateReportingServiceClient, topN uint32) {
-	req := &pb.RateRequest{
-		Estimators: []pb.RateRequest_Estimators{
-			pb.RateRequest_EMA_5_SECONDS,
-			pb.RateRequest_EMA_1_MINUTES,
-			pb.RateRequest_EMA_5_MINUTES,
-			pb.RateRequest_SMA_5_SECONDS,
-			pb.RateRequest_SMA_1_MINUTES,
-			pb.RateRequest_SMA_5_MINUTES,
+func runMonitor(client pb.EosClient, topN uint32) {
+	req := &pb.TrafficShapingRateRequest{
+		Estimators: []pb.TrafficShapingRateRequest_Estimators{
+			pb.TrafficShapingRateRequest_EMA_5_SECONDS,
+			pb.TrafficShapingRateRequest_EMA_1_MINUTES,
+			pb.TrafficShapingRateRequest_EMA_5_MINUTES,
+			pb.TrafficShapingRateRequest_SMA_5_SECONDS,
+			pb.TrafficShapingRateRequest_SMA_1_MINUTES,
+			pb.TrafficShapingRateRequest_SMA_5_MINUTES,
 		},
-		IncludeTypes: []pb.RateRequest_EntityType{
-			pb.RateRequest_ENTITY_APP,
-			pb.RateRequest_ENTITY_UID,
-			pb.RateRequest_ENTITY_GID, // Added GID support
+		IncludeTypes: []pb.TrafficShapingRateRequest_EntityType{
+			pb.TrafficShapingRateRequest_ENTITY_APP,
+			pb.TrafficShapingRateRequest_ENTITY_UID,
+			pb.TrafficShapingRateRequest_ENTITY_GID, // Added GID support
 		},
 		TopN:            &topN,
-		SortByEstimator: pb.RateRequest_SMA_1_MINUTES.Enum(),
+		SortByEstimator: pb.TrafficShapingRateRequest_SMA_1_MINUTES.Enum(),
 	}
 
-	stream, err := client.StreamRates(context.Background(), req)
+	stream, err := client.TrafficShapingRate(context.Background(), req)
 	if err != nil {
 		log.Fatalf("Error opening stream: %v", err)
 	}
