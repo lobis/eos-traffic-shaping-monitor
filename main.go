@@ -36,22 +36,17 @@ var (
 		},
 		[]string{"entity_type", "id", "estimator"},
 	)
-	fstUpdateMicros = prometheus.NewGauge(
+	threadLoopMicros = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "eos_io_fst_limits_update_microseconds",
-			Help: "Time taken to calculate limits and update FSTs in microseconds",
+			Name: "eos_io_thread_loop_microseconds",
+			Help: "Time taken to execute internal thread loops in microseconds",
 		},
-	)
-	estimatorsUpdateMicros = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "eos_io_estimators_update_microseconds",
-			Help: "Time taken to calculate rate estimators in microseconds",
-		},
+		[]string{"loop_name", "stat_type"}, // Labels: loop_name (fst_limits, estimators), stat_type (mean, min, max)
 	)
 )
 
 func init() {
-	prometheus.MustRegister(readBytes, writeBytes, fstUpdateMicros, estimatorsUpdateMicros)
+	prometheus.MustRegister(readBytes, writeBytes, threadLoopMicros)
 }
 
 func main() {
@@ -99,7 +94,7 @@ func runMonitor(client pb.EosClient, topN uint32) {
 		IncludeTypes: []pb.TrafficShapingRateRequest_EntityType{
 			pb.TrafficShapingRateRequest_ENTITY_APP,
 			pb.TrafficShapingRateRequest_ENTITY_UID,
-			pb.TrafficShapingRateRequest_ENTITY_GID, // Added GID support
+			pb.TrafficShapingRateRequest_ENTITY_GID,
 		},
 		TopN:            &topN,
 		SortByEstimator: pb.TrafficShapingRateRequest_SMA_1_MINUTES.Enum(),
@@ -120,22 +115,39 @@ func runMonitor(client pb.EosClient, topN uint32) {
 
 		// 1. Clear console and print headers FIRST
 		fmt.Print("\033[H\033[2J")
+		fmt.Printf("EOS IO Monitor | Last Update: %s\n\n", time.UnixMilli(report.TimestampMs).Format(time.RFC3339))
 
-		fstDuration := time.Duration(report.FstLimitsUpdateElapsedTimeMicroSec) * time.Microsecond
-		estDuration := time.Duration(report.EstimatorsUpdateElapsedTimeMicroSec) * time.Microsecond
+		// 2. Safely extract and print Thread Loop Stats
+		if fst := report.FstLimitsUpdateThreadLoopStats; fst != nil {
+			fmt.Printf("FST Limits Update | Mean: %s | Min: %s | Max: %s\n",
+				time.Duration(fst.MeanElapsedTimeMicroSec)*time.Microsecond,
+				time.Duration(fst.MinElapsedTimeMicroSec)*time.Microsecond,
+				time.Duration(fst.MaxElapsedTimeMicroSec)*time.Microsecond,
+			)
 
-		fmt.Printf("EOS IO Monitor | Last Update: %s\n", time.UnixMilli(report.TimestampMs).Format(time.RFC3339))
-		fmt.Printf("Update Times   | FST Limits: %s | Estimators: %s\n\n", fstDuration, estDuration)
+			// Export to Prometheus
+			threadLoopMicros.WithLabelValues("fst_limits", "mean").Set(float64(fst.MeanElapsedTimeMicroSec))
+			threadLoopMicros.WithLabelValues("fst_limits", "min").Set(float64(fst.MinElapsedTimeMicroSec))
+			threadLoopMicros.WithLabelValues("fst_limits", "max").Set(float64(fst.MaxElapsedTimeMicroSec))
+		}
 
-		// 2. Set global Prometheus metrics
-		fstUpdateMicros.Set(float64(report.FstLimitsUpdateElapsedTimeMicroSec))
-		estimatorsUpdateMicros.Set(float64(report.EstimatorsUpdateElapsedTimeMicroSec))
+		if est := report.EstimatorsUpdateThreadLoopStats; est != nil {
+			fmt.Printf("Estimators Update | Mean: %s | Min: %s | Max: %s\n",
+				time.Duration(est.MeanElapsedTimeMicroSec)*time.Microsecond,
+				time.Duration(est.MinElapsedTimeMicroSec)*time.Microsecond,
+				time.Duration(est.MaxElapsedTimeMicroSec)*time.Microsecond,
+			)
+
+			// Export to Prometheus
+			threadLoopMicros.WithLabelValues("estimators", "mean").Set(float64(est.MeanElapsedTimeMicroSec))
+			threadLoopMicros.WithLabelValues("estimators", "min").Set(float64(est.MinElapsedTimeMicroSec))
+			threadLoopMicros.WithLabelValues("estimators", "max").Set(float64(est.MaxElapsedTimeMicroSec))
+		}
+		fmt.Println()
 
 		// 3. Reset the vector metrics BEFORE processing the new batch
-		// This ensures we clear out old data, but keep the new data alive
-		// long enough for Prometheus to actually scrape it.
-		readBytes.Reset()
-		writeBytes.Reset()
+		// readBytes.Reset()
+		// writeBytes.Reset()
 
 		// 4. Process, Print, and Export the details LAST
 		printAndExportApps(report.AppStats)
@@ -144,6 +156,7 @@ func runMonitor(client pb.EosClient, topN uint32) {
 	}
 }
 
+// --- Helper Functions ---
 func printAndExportApps(stats []*pb.AppRateEntry) {
 	if len(stats) == 0 {
 		return
@@ -151,14 +164,12 @@ func printAndExportApps(stats []*pb.AppRateEntry) {
 	fmt.Println("--- Top Applications ---")
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-	fmt.Fprintln(w, "App\tEstimator\tRead/s\tWrite/s") // Removed IOPS columns
+	fmt.Fprintln(w, "App\tEstimator\tRead/s\tWrite/s")
 
 	for _, entry := range stats {
 		for _, s := range entry.Stats {
 			estimatorName := s.Window.String()
-
 			exportMetric("app", entry.AppName, estimatorName, s)
-
 			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 				entry.AppName,
 				estimatorName,
@@ -178,16 +189,13 @@ func printAndExportUsers(stats []*pb.UserRateEntry) {
 	fmt.Println("--- Top Users ---")
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-	fmt.Fprintln(w, "UID\tWindow\tRead/s\tWrite/s") // Removed IOPS columns
+	fmt.Fprintln(w, "UID\tWindow\tRead/s\tWrite/s")
 
 	for _, entry := range stats {
 		uidStr := strconv.Itoa(int(entry.Uid))
-
 		for _, s := range entry.Stats {
 			winName := s.Window.String()
-
 			exportMetric("user", uidStr, winName, s)
-
 			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 				uidStr,
 				winName,
@@ -211,12 +219,9 @@ func printAndExportGroups(stats []*pb.GroupRateEntry) {
 
 	for _, entry := range stats {
 		gidStr := strconv.Itoa(int(entry.Gid))
-
 		for _, s := range entry.Stats {
 			winName := s.Window.String()
-
 			exportMetric("group", gidStr, winName, s)
-
 			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 				gidStr,
 				winName,
