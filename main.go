@@ -84,9 +84,9 @@ func main() {
 func runMonitor(client pb.EosClient, topN uint32) {
 	req := &pb.TrafficShapingRateRequest{
 		Estimators: []pb.TrafficShapingRateRequest_Estimators{
+			pb.TrafficShapingRateRequest_EMA_1_SECONDS,
 			pb.TrafficShapingRateRequest_EMA_5_SECONDS,
-			pb.TrafficShapingRateRequest_EMA_1_MINUTES,
-			pb.TrafficShapingRateRequest_EMA_5_MINUTES,
+			pb.TrafficShapingRateRequest_SMA_1_SECONDS,
 			pb.TrafficShapingRateRequest_SMA_5_SECONDS,
 			pb.TrafficShapingRateRequest_SMA_1_MINUTES,
 			pb.TrafficShapingRateRequest_SMA_5_MINUTES,
